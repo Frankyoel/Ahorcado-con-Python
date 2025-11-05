@@ -151,7 +151,7 @@ def draw_letras_usadas(game):
 def draw_teclado(game, mouse_x, mouse_y):
     letras = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     x_start = 100
-    y_start = 80
+    y_start = 120
     btn_width = 40
     btn_height = 40
     spacing = 5
@@ -200,7 +200,7 @@ def draw_teclado(game, mouse_x, mouse_y):
 def get_clicked_letter(mouse_x, mouse_y):
     letras = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     x_start = 100
-    y_start = 80
+    y_start = 120
     btn_width = 40
     btn_height = 40
     spacing = 5
