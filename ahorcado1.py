@@ -4,9 +4,11 @@ from OpenGL.GL import *
 from OpenGL.GLU import *
 import random
 import math
-import numpy as np
-from OpenGL.GL import glGenFramebuffers, glBindFramebuffer, glFramebufferTexture2D, glGenTextures, glBindTexture, glTexImage2D, glCheckFramebufferStatus
 import os
+
+# Variable global para la fuente 
+# cachear para mejor rendimiento
+_fuente_cache = None
 
 class AhorcadoGame:
     def __init__(self):
@@ -99,7 +101,7 @@ def dibujar_fondo(textura_id):
     
     glEnable(GL_TEXTURE_2D)
     glBindTexture(GL_TEXTURE_2D, textura_id)
-    glColor3f(1, 1, 1)  # Color blanco para no teñir la textura
+    glColor3f(1, 1, 1) 
     
     glBegin(GL_QUADS)
     glTexCoord2f(0, 0); glVertex2f(0, 0)
@@ -114,7 +116,7 @@ def dibujar_fondo(textura_id):
     glMatrixMode(GL_PROJECTION)
     glPopMatrix() # Pop Projection
     glMatrixMode(GL_MODELVIEW)
-    glEnable(GL_DEPTH_TEST)  # Reactivar depth test
+    glEnable(GL_DEPTH_TEST)  
 
 def dibujar_esfera_3d(radio=0.5, rodajas=20, pilas=20):
     """Dibuja una esfera 3D"""
@@ -212,7 +214,7 @@ def dibujar_horca_3d(intentos_incorrectos):
     dibujar_cubo_3d()
     glPopMatrix()
     
-    # Soga - color beige/cuerda - SOLO APARECE EN EL ÚLTIMO INTENTO
+    # Soga - color beige
     if intentos_incorrectos >= 6:
         glColor3f(0.8, 0.7, 0.5)
         glPushMatrix()
@@ -222,10 +224,10 @@ def dibujar_horca_3d(intentos_incorrectos):
         glPopMatrix()
 
 def dibujar_persona_3d(intentos_incorrectos):
-    """Dibuja una persona 3D con cubos y esferas de colores vibrantes"""
+    """Dibuja una persona 3D con cubos y esferas"""
     
     if intentos_incorrectos >= 1:
-        # Dibujar cabeza (Rosa/Piel)
+        # Dibujar cabeza
         glPushMatrix()
         glColor3f(1.0, 0.8, 0.7)  # Rosa piel
         glTranslatef(0.0, 0.75, 0.0)
@@ -233,7 +235,7 @@ def dibujar_persona_3d(intentos_incorrectos):
         glPopMatrix()
     
     if intentos_incorrectos >= 2:
-        # Dibujar cuerpo (Azul)
+        # Dibujar cuerpo
         glPushMatrix()
         glColor3f(0.2, 0.5, 1.0)  # Azul
         glScalef(0.30, 1.0, 0.25)
@@ -241,7 +243,7 @@ def dibujar_persona_3d(intentos_incorrectos):
         glPopMatrix()
     
     if intentos_incorrectos >= 3:
-        # Dibujar brazo izquierdo (Verde)
+        # Dibujar brazo izquierdo
         glColor3f(0.2, 0.8, 0.3)  # Verde
         glPushMatrix()
         glTranslatef(-0.22, 0.25, 0.0)
@@ -251,7 +253,7 @@ def dibujar_persona_3d(intentos_incorrectos):
         glPopMatrix()
     
     if intentos_incorrectos >= 4:
-        # Dibujar brazo derecho (Verde)
+        # Dibujar brazo derecho
         glColor3f(0.2, 0.8, 0.3)  # Verde
         glPushMatrix()
         glTranslatef(0.22, 0.25, 0.0)
@@ -261,7 +263,7 @@ def dibujar_persona_3d(intentos_incorrectos):
         glPopMatrix()
     
     if intentos_incorrectos >= 5:
-        # Dibujar AMBAS piernas (Naranja)
+        # Dibujar AMBAS piernas
         glColor3f(1.0, 0.5, 0.0)  # Naranja
         
         # Pierna izquierda
@@ -326,7 +328,13 @@ def dibujar_ahorcado_3d(intentos_incorrectos, rotacion_x=0, rotacion_y=0, auto_r
 
 def dibujar_texto(x, y, texto, tamano=24, color=(255, 255, 255)):
     """Dibuja texto usando Pygame en lugar de GLUT"""
-    fuente = pygame.font.Font(None, tamano)
+    global _fuente_cache
+    
+    # Usar fuente cacheada si existe y es del tamaño correcto
+    if _fuente_cache is None or _fuente_cache[0] != tamano:
+        _fuente_cache = (tamano, pygame.font.Font(None, tamano))
+    
+    fuente = _fuente_cache[1]
     superficie_texto = fuente.render(texto, True, color)
     datos_texto = pygame.image.tostring(superficie_texto, "RGBA", True)
     
@@ -415,7 +423,7 @@ def dibujar_teclado(juego, raton_x, raton_y):
         dibujar_texto(x + 10, y - 28, letra, 24)
 
 def obtener_letra_clic(raton_x, raton_y):
-    letras = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ"
+    letras = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     x_inicio = 100
     y_inicio = 120
     ancho_btn = 40
@@ -499,15 +507,14 @@ def main():
         juego.muneco_auto_rotacion = (juego.muneco_auto_rotacion + 1) % 360
         
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-        glLoadIdentity()
         
-        # Dibujar fondo primero
+        # Dibujar fondo primero 
         dibujar_fondo(textura_fondo)
         
-        # Dibujar elementos del juego
+        # Dibujar elementos del juego en 3D 
         dibujar_ahorcado_3d(len(juego.letras_incorrectas), juego.muneco_rotacion_x, juego.muneco_rotacion_y, juego.muneco_auto_rotacion)
         
-        # Restaurar proyección 2D después de dibujar 3D
+        # Configurar proyección 2D
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
         gluOrtho2D(0, 800, 0, 600)
