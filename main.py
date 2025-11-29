@@ -6,10 +6,6 @@ import random
 import math
 import os
 
-# Variable global para la fuente 
-# cachear para mejor rendimiento
-_fuente_cache = None
-
 class AhorcadoGame:
     def __init__(self):
         self.palabras = ['PYTHON', 'OPENGL', 'PROGRAMA', 'JUEGO', 'GRAFICO', 
@@ -88,8 +84,9 @@ def dibujar_fondo(textura_id):
     """Dibuja el fondo usando la textura cargada"""
     if not textura_id:
         return
-        
-    glDisable(GL_DEPTH_TEST)  # Deshabilitar depth test para el fondo
+    
+    # Deshabilitar depth test para el fondo
+    glDisable(GL_DEPTH_TEST)  
     glMatrixMode(GL_PROJECTION)
     glPushMatrix()
     glLoadIdentity()
@@ -99,10 +96,12 @@ def dibujar_fondo(textura_id):
     glPushMatrix()
     glLoadIdentity()
     
+    # Habilitar texturas
     glEnable(GL_TEXTURE_2D)
     glBindTexture(GL_TEXTURE_2D, textura_id)
-    glColor3f(1, 1, 1) 
+    glColor3f(1, 1, 1)
     
+    # Dibujar el fondo
     glBegin(GL_QUADS)
     glTexCoord2f(0, 0); glVertex2f(0, 0)
     glTexCoord2f(1, 0); glVertex2f(800, 0)
@@ -112,14 +111,16 @@ def dibujar_fondo(textura_id):
     
     glDisable(GL_TEXTURE_2D)
     
-    glPopMatrix() # Pop ModelView
+    # Restaurar estado 2D
+    glPopMatrix() 
     glMatrixMode(GL_PROJECTION)
-    glPopMatrix() # Pop Projection
+    glPopMatrix() 
     glMatrixMode(GL_MODELVIEW)
-    glEnable(GL_DEPTH_TEST)  
+    glEnable(GL_DEPTH_TEST)
 
 def dibujar_esfera_3d(radio=0.5, rodajas=20, pilas=20):
     """Dibuja una esfera 3D"""
+    
     for i in range(pilas):
         lat0 = math.pi * (-0.5 + float(i) / pilas)
         z0 = math.sin(lat0) * radio
@@ -144,37 +145,37 @@ def dibujar_cubo_3d(tamano=1.0):
     s = tamano / 2.0
     glBegin(GL_QUADS)
     
-    # Front
+    # Frente
     glVertex3f(-s, -s, s)
     glVertex3f(s, -s, s)
     glVertex3f(s, s, s)
     glVertex3f(-s, s, s)
     
-    # Back
+    # Atrás
     glVertex3f(-s, -s, -s)
     glVertex3f(-s, s, -s)
     glVertex3f(s, s, -s)
     glVertex3f(s, -s, -s)
     
-    # Top
+    # Arriba
     glVertex3f(-s, s, -s)
     glVertex3f(-s, s, s)
     glVertex3f(s, s, s)
     glVertex3f(s, s, -s)
     
-    # Bottom
+    # Abajo
     glVertex3f(-s, -s, -s)
     glVertex3f(s, -s, -s)
     glVertex3f(s, -s, s)
     glVertex3f(-s, -s, s)
     
-    # Right
+    # Derecha
     glVertex3f(s, -s, -s)
     glVertex3f(s, s, -s)
     glVertex3f(s, s, s)
     glVertex3f(s, -s, s)
     
-    # Left
+    # Izquierda
     glVertex3f(-s, -s, -s)
     glVertex3f(-s, -s, s)
     glVertex3f(-s, s, s)
@@ -214,7 +215,7 @@ def dibujar_horca_3d(intentos_incorrectos):
     dibujar_cubo_3d()
     glPopMatrix()
     
-    # Soga - color beige
+    # Soga - color beige/cuerda
     if intentos_incorrectos >= 6:
         glColor3f(0.8, 0.7, 0.5)
         glPushMatrix()
@@ -224,10 +225,10 @@ def dibujar_horca_3d(intentos_incorrectos):
         glPopMatrix()
 
 def dibujar_persona_3d(intentos_incorrectos):
-    """Dibuja una persona 3D con cubos y esferas"""
+    """Dibuja una persona 3D con cubos y esferas de colores vibrantes"""
     
     if intentos_incorrectos >= 1:
-        # Dibujar cabeza
+        # Dibujar cabeza 
         glPushMatrix()
         glColor3f(1.0, 0.8, 0.7)  # Rosa piel
         glTranslatef(0.0, 0.75, 0.0)
@@ -235,7 +236,7 @@ def dibujar_persona_3d(intentos_incorrectos):
         glPopMatrix()
     
     if intentos_incorrectos >= 2:
-        # Dibujar cuerpo
+        # Dibujar cuerpo 
         glPushMatrix()
         glColor3f(0.2, 0.5, 1.0)  # Azul
         glScalef(0.30, 1.0, 0.25)
@@ -243,7 +244,7 @@ def dibujar_persona_3d(intentos_incorrectos):
         glPopMatrix()
     
     if intentos_incorrectos >= 3:
-        # Dibujar brazo izquierdo
+        # Dibujar brazo izquierdo 
         glColor3f(0.2, 0.8, 0.3)  # Verde
         glPushMatrix()
         glTranslatef(-0.22, 0.25, 0.0)
@@ -253,7 +254,7 @@ def dibujar_persona_3d(intentos_incorrectos):
         glPopMatrix()
     
     if intentos_incorrectos >= 4:
-        # Dibujar brazo derecho
+        # Dibujar brazo derecho 
         glColor3f(0.2, 0.8, 0.3)  # Verde
         glPushMatrix()
         glTranslatef(0.22, 0.25, 0.0)
@@ -263,7 +264,7 @@ def dibujar_persona_3d(intentos_incorrectos):
         glPopMatrix()
     
     if intentos_incorrectos >= 5:
-        # Dibujar AMBAS piernas
+        # Dibujar AMBAS piernas 
         glColor3f(1.0, 0.5, 0.0)  # Naranja
         
         # Pierna izquierda
@@ -286,14 +287,14 @@ def dibujar_ahorcado_3d(intentos_incorrectos, rotacion_x=0, rotacion_y=0, auto_r
     glMatrixMode(GL_PROJECTION)
     glPushMatrix()
     glLoadIdentity()
-    gluPerspective(45, 800.0/600.0, 0.1, 100.0)
+    gluPerspective(45, 800/600, 0.1, 100)
     
+    # Guardar estado 3D
     glMatrixMode(GL_MODELVIEW)
     glPushMatrix()
     glLoadIdentity()
     
-    # Configurar cámara 3D - posicionar del lado IZQUIERDO de la pantalla
-    # Valores positivos en X para que aparezca a la izquierda
+    # Configurar cámara 3D 
     gluLookAt(1.0, 0.5, 4.5, 1.0, 0, 0, 0, 1, 0)
     
     # Aplicar rotaciones
@@ -307,7 +308,7 @@ def dibujar_ahorcado_3d(intentos_incorrectos, rotacion_x=0, rotacion_y=0, auto_r
     glEnable(GL_DEPTH_TEST)
     glClear(GL_DEPTH_BUFFER_BIT)
     
-    # Dibujar la estructura de la horca (palo, base, viga, soga)
+    # Dibujar la estructura de la horca
     dibujar_horca_3d(intentos_incorrectos)
     
     # Dibujar la persona 3D colgando de la soga con rotación automática
@@ -328,13 +329,8 @@ def dibujar_ahorcado_3d(intentos_incorrectos, rotacion_x=0, rotacion_y=0, auto_r
 
 def dibujar_texto(x, y, texto, tamano=24, color=(255, 255, 255)):
     """Dibuja texto usando Pygame en lugar de GLUT"""
-    global _fuente_cache
     
-    # Usar fuente cacheada si existe y es del tamaño correcto
-    if _fuente_cache is None or _fuente_cache[0] != tamano:
-        _fuente_cache = (tamano, pygame.font.Font(None, tamano))
-    
-    fuente = _fuente_cache[1]
+    fuente = pygame.font.Font(None, tamano)
     superficie_texto = fuente.render(texto, True, color)
     datos_texto = pygame.image.tostring(superficie_texto, "RGBA", True)
     
@@ -364,16 +360,20 @@ def dibujar_palabra(juego):
             dibujar_texto(x + 5, y_pos, letra, 32)
 
 def dibujar_letras_usadas(juego):
+
     glColor3f(0.5, 0.0, 0.0)
     dibujar_texto(400, 280, "INCORRECTAS:", 20)
     
     x_pos = 400
     y_pos = 250
+
+    # Letras incorrectas
     for letra in sorted(juego.letras_incorrectas):
         dibujar_texto(x_pos, y_pos, letra, 24)
         x_pos += 30
 
 def dibujar_teclado(juego, raton_x, raton_y):
+    # Dibuja un teclado con botones para las letras
     letras = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     x_inicio = 100
     y_inicio = 120
@@ -423,6 +423,7 @@ def dibujar_teclado(juego, raton_x, raton_y):
         dibujar_texto(x + 10, y - 28, letra, 24)
 
 def obtener_letra_clic(raton_x, raton_y):
+    # Obtiene la letra
     letras = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     x_inicio = 100
     y_inicio = 120
@@ -444,6 +445,7 @@ def obtener_letra_clic(raton_x, raton_y):
     return None
 
 def dibujar_fin_juego(juego):
+    # Dibuja el mensaje de fin de juego
     if juego.ganado:
         glColor3f(0.0, 0.6, 0.0)
         dibujar_texto(400, 450, "¡GANASTE!", 48)
@@ -457,6 +459,7 @@ def dibujar_fin_juego(juego):
     dibujar_texto(350, 200, "Presiona R para reiniciar", 20)
 
 def main():
+
     pygame.init()
     pantalla = (800, 600)
     pygame.display.set_mode(pantalla, DOUBLEBUF | OPENGL)
@@ -473,15 +476,16 @@ def main():
     reloj = pygame.time.Clock()
     
     ejecutando = True
+
+    # Bucle principal
     while ejecutando:
         raton_x, raton_y = pygame.mouse.get_pos()
-        # Invertir Y para OpenGL
         raton_y = pantalla[1] - raton_y
         
         for evento in pygame.event.get():
             if evento.type == pygame.QUIT:
                 ejecutando = False
-            
+
             elif evento.type == pygame.MOUSEBUTTONDOWN:
                 if not juego.juego_terminado:
                     letra = obtener_letra_clic(raton_x, raton_y)
@@ -503,24 +507,27 @@ def main():
                     letra = chr(evento.key).upper()
                     juego.adivinar_letra(letra)
         
-        # Incrementar rotación automática del muñeco
+        # Rotación del muñeco
         juego.muneco_auto_rotacion = (juego.muneco_auto_rotacion + 1) % 360
         
+        # Limpieza de la pantalla
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+        glLoadIdentity()
         
-        # Dibujar fondo primero 
+        # Dibujar fondo primero
         dibujar_fondo(textura_fondo)
         
-        # Dibujar elementos del juego en 3D 
+        # Dibujar elementos del juego
         dibujar_ahorcado_3d(len(juego.letras_incorrectas), juego.muneco_rotacion_x, juego.muneco_rotacion_y, juego.muneco_auto_rotacion)
         
-        # Configurar proyección 2D
+        # Restaurar proyección 2D después de dibujar 3D
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
         gluOrtho2D(0, 800, 0, 600)
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
         
+        # Dibujar elementos del juego
         dibujar_palabra(juego)
         dibujar_letras_usadas(juego)
         dibujar_teclado(juego, raton_x, raton_y)
